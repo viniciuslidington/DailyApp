@@ -12,19 +12,26 @@ const signUpSchema = z.object({
 const signInSchema = signUpSchema;
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
+export type SignUpResult = ActionResult | { ok: true; needsConfirmation: true; email: string };
 
-export async function signUp(formData: FormData): Promise<ActionResult> {
+export async function signUp(formData: FormData): Promise<SignUpResult> {
   const parsed = signUpSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { ok: false, error: parsed.error.errors[0]?.message ?? "Invalid input." };
   }
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signUp(parsed.data);
+  const { data, error } = await supabase.auth.signUp(parsed.data);
   if (error) {
     if (error.message.toLowerCase().includes("registered")) {
       return { ok: false, error: "Email already in use. Try signing in." };
     }
     return { ok: false, error: error.message };
+  }
+  // When email confirmation is required, Supabase returns user + null session.
+  // Without a session the middleware will bounce them out of onboarding, so
+  // surface the "check your email" path explicitly instead of navigating on.
+  if (!data.session) {
+    return { ok: true, needsConfirmation: true, email: parsed.data.email };
   }
   return { ok: true };
 }

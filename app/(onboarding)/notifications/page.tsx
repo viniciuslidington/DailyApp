@@ -34,10 +34,16 @@ export default function NotificationsPage() {
           return;
         }
       }
-      // 2. Optionally request permission + subscribe.
+      // 2. Optionally request permission + subscribe. Subscription failures
+      //    (unsupported browser, iOS not installed, missing VAPID, transient
+      //    pushManager errors) must NOT block onboarding — we record the
+      //    permission grant if we got one and move on.
       if (!skipPermission) {
-        const perm = await requestAndSubscribe();
-        if (perm === "granted") await recordNotificationPermission();
+        const result = await requestAndSubscribe();
+        if (result.permission === "granted") await recordNotificationPermission();
+        if (result.subscriptionError) {
+          console.warn("[push] subscription failed:", result.subscriptionError);
+        }
       }
       router.push("/done");
     });
