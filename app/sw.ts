@@ -39,12 +39,32 @@ self.addEventListener("push", (event: PushEvent) => {
 self.addEventListener("notificationclick", (event: NotificationEvent) => {
   event.notification.close();
   const url = (event.notification.data as { url?: string } | undefined)?.url ?? "/";
+  const target = new URL(url, self.location.origin).href;
+
   event.waitUntil(
-    self.clients.matchAll({ type: "window" }).then((clients) => {
-      for (const client of clients) {
-        if ("focus" in client) return client.focus();
+    (async () => {
+      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+
+      // Prefer a client already at the target — just focus it.
+      const exact = clients.find((c) => c.url === target);
+      if (exact) {
+        await exact.focus();
+        return;
       }
-      return self.clients.openWindow(url);
-    }),
+
+      // Otherwise navigate any open client to the target and focus it.
+      const anyClient = clients[0];
+      if (anyClient && "navigate" in anyClient) {
+        try {
+          const navigated = await anyClient.navigate(target);
+          await (navigated ?? anyClient).focus();
+          return;
+        } catch {
+          // Cross-origin or otherwise non-navigable — fall through to openWindow.
+        }
+      }
+
+      await self.clients.openWindow(target);
+    })(),
   );
 });
