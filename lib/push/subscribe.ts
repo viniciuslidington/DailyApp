@@ -65,9 +65,16 @@ export async function requestAndSubscribe(): Promise<PushSubscribeResult> {
       }));
 
     const supabase = createSupabaseBrowserClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { permission, subscribed: false, subscriptionError: "Not signed in." };
+    }
     const json = subscription.toJSON();
     const { error } = await supabase.from("push_subscriptions").upsert(
       {
+        user_id: user.id,
         endpoint: subscription.endpoint,
         p256dh: json.keys?.p256dh ?? "",
         auth: json.keys?.auth ?? "",
