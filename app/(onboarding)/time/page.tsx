@@ -20,9 +20,13 @@ function to24h(value: TimeValue): { hour: number; minute: number } {
 
 export default function TimePage() {
   const router = useRouter();
-  const stored = useOnboardingDraft((s) => ({ h: s.reminderHour, m: s.reminderMinute }));
+  // Select primitives separately — selectors that return a new object literal
+  // each render trip React's "getSnapshot should be cached" warning and can
+  // loop in dev. The initial value is only read once via lazy init.
+  const storedHour = useOnboardingDraft((s) => s.reminderHour);
+  const storedMinute = useOnboardingDraft((s) => s.reminderMinute);
   const setReminderTime = useOnboardingDraft((s) => s.setReminderTime);
-  const [value, setValue] = useState<TimeValue>(toDisplay(stored.h, stored.m));
+  const [value, setValue] = useState<TimeValue>(() => toDisplay(storedHour, storedMinute));
 
   const onContinue = () => {
     const { hour, minute } = to24h(value);
