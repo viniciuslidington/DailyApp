@@ -1,0 +1,71 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+/* Tailwind v4 @theme — exposes our design tokens as utilities.
+   Use `bg-blue`, `text-ink`, `rounded-2xl`, etc. */
+@theme {
+  --color-blue: var(--color-blue);
+  --color-blue-dark: var(--color-blue-dark);
+  --color-blue-soft: var(--color-blue-soft);
+  --color-orange: var(--color-orange);
+  --color-orange-soft: var(--color-orange-soft);
+  --color-orange-ink: var(--color-orange-ink);
+  --color-orange-end: var(--color-orange-end);
+  --color-purple: var(--color-purple);
+  --color-purple-soft: var(--color-purple-soft);
+  --color-purple-ink: var(--color-purple-ink);
+
+  --color-ink: var(--color-ink);
+  --color-ink-2: var(--color-ink-2);
+  --color-ink-3: var(--color-ink-3);
+
+  --color-bg: var(--color-bg);
+  --color-card: var(--color-card);
+  --color-hair: var(--color-hair);
+  --color-track: var(--color-track);
+  --color-mute: var(--color-mute);
+  --color-success: var(--color-success);
+
+  --color-tint-blue: var(--color-tint-blue);
+  --color-tint-green: var(--color-tint-green);
+  --color-tint-amber: var(--color-tint-amber);
+  --color-tint-pink: var(--color-tint-pink);
+  --color-tint-gray: var(--color-tint-gray);
+
+  --color-glass: var(--color-glass);
+  --color-glass-soft: var(--color-glass-soft);
+  --color-glass-border: var(--color-glass-border);
+  --color-glass-fill: var(--color-glass-fill);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui,
+    sans-serif;
+
+  --radius-xs: 2px;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-base: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tabular numerals for counters ("Step 1 of 5"). */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

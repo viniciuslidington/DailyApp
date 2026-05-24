@@ -1,0 +1,142 @@
+/* Daily — design tokens (single source of truth, verbatim from docs/DESIGN.md §2). */
+/* TS/TSX MUST NEVER read hex literals — always reference these vars or Tailwind tokens. */
+
+:root {
+  /* Brand */
+  --color-blue: #2f6bff;
+  --color-blue-dark: #1e54d9;
+  --color-blue-soft: #eaf1ff;
+  --color-orange: #ff7a3d;
+  --color-orange-soft: #ffeee3;
+  --color-orange-ink: #7a3a14;
+  --color-orange-end: #e2541a;
+  --color-purple: #7c5cff;
+  --color-purple-soft: #f2ebff;
+  --color-purple-ink: #5b3dbf;
+
+  /* Ink (text) */
+  --color-ink: #15171c;
+  --color-ink-2: #5b6271;
+  --color-ink-3: #9aa0ae;
+
+  /* Surfaces */
+  --color-bg: #f6f7f9;
+  --color-card: #ffffff;
+
+  /* Lines */
+  --color-hair: rgba(60, 60, 67, 0.1);
+  --color-track: #e6e9ef;
+  --color-mute: #d8dce5;
+
+  /* State */
+  --color-success: #1fb364;
+
+  /* Habit tints */
+  --color-tint-blue: #e6f4ff;
+  --color-tint-green: #e8f8ee;
+  --color-tint-amber: #fff1e0;
+  --color-tint-pink: #ffebee;
+  --color-tint-gray: #f2f3f6;
+
+  /* Glass (notification preview) */
+  --color-glass: rgba(255, 255, 255, 0.92);
+  --color-glass-soft: rgba(255, 255, 255, 0.7);
+  --color-glass-border: rgba(0, 0, 0, 0.04);
+  --color-glass-fill: #f1f5fb;
+
+  /* Shadow amounts (combined into shadow tokens below) */
+  --shadow-amt: rgba(0, 0, 0, 0.06);
+  --shadow-amt-2: rgba(0, 0, 0, 0.12);
+
+  /* Shadows (DESIGN.md §2.5) */
+  --shadow-primary: 0 6px 18px rgba(47, 107, 255, 0.2);
+  --shadow-orange: 0 6px 18px rgba(255, 122, 61, 0.2);
+  --shadow-floating: 0 2px 10px var(--shadow-amt);
+  --shadow-selected: 0 6px 18px rgba(47, 107, 255, 0.12);
+  --shadow-hero: 0 12px 36px rgba(47, 107, 255, 0.22);
+
+  /* Radii (DESIGN.md §2.4) */
+  --radius-xs: 2px;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-base: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* Spacing (DESIGN.md §2.3) */
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 14px;
+  --space-7: 16px;
+  --space-8: 20px;
+  --space-9: 22px;
+  --space-10: 24px;
+  --space-11: 28px;
+  --space-12: 32px;
+  --space-16: 64px;
+  --space-18: 70px;
+  --space-30: 120px;
+
+  /* Motion (DESIGN.md §2.6) */
+  --motion-fast: 150ms;
+  --motion-dot: 250ms;
+  --motion-base: 300ms;
+  --motion-page: 320ms;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-page: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+[data-theme="dark"] {
+  --color-blue: #4d85ff;
+  --color-blue-dark: #2f6bff;
+  --color-blue-soft: rgba(77, 133, 255, 0.18);
+  --color-orange: #ff8a4d;
+  --color-orange-soft: rgba(255, 138, 77, 0.16);
+  --color-orange-ink: #ffb58a;
+  --color-orange-end: #d9591f;
+  --color-purple: #9b82ff;
+  --color-purple-soft: rgba(155, 130, 255, 0.18);
+  --color-purple-ink: #c5b5ff;
+
+  --color-ink: #f0f2f7;
+  --color-ink-2: #9aa3b5;
+  --color-ink-3: #646b7c;
+
+  --color-bg: #0b0e14;
+  --color-card: #171b23;
+
+  --color-hair: rgba(255, 255, 255, 0.08);
+  --color-track: #23272f;
+  --color-mute: #2d323d;
+
+  --color-success: #22c56a;
+
+  --color-tint-blue: rgba(77, 133, 255, 0.14);
+  --color-tint-green: rgba(34, 197, 106, 0.14);
+  --color-tint-amber: rgba(255, 170, 77, 0.14);
+  --color-tint-pink: rgba(255, 107, 138, 0.14);
+  --color-tint-gray: #23272f;
+
+  --color-glass: rgba(36, 40, 50, 0.94);
+  --color-glass-soft: rgba(36, 40, 50, 0.55);
+  --color-glass-border: rgba(255, 255, 255, 0.06);
+  --color-glass-fill: #1e2330;
+
+  --shadow-amt: rgba(0, 0, 0, 0.45);
+  --shadow-amt-2: rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-dot: 0ms;
+    --motion-base: 0ms;
+    --motion-page: 0ms;
+  }
+}

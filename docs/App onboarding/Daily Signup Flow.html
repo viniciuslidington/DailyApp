@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Daily — iOS signup flow</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; transition: background .25s ease; }
+  body { background: #f0eee9; }
+  body.dark { background: #0a0c10; }
+  #root { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="screens.jsx"></script>
+<script type="text/babel" src="create-reminder.jsx"></script>
+<script type="text/babel" src="tabs.jsx"></script>
+<script type="text/babel" src="routine.jsx"></script>
+
+<script type="text/babel">
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "dark": false,
+    "primary": "#2F6BFF",
+    "accent": "#FF7A3D"
+  }/*EDITMODE-END*/;
+
+  // Wrap each screen content in IOSDevice. We pass empty title so the nav bar
+  // is suppressed (each screen draws its own header), and feed the body
+  // directly. Status bar + dynamic island + home indicator come from the frame.
+  function Frame({ children, keyboard = false }) {
+    return (
+      <IOSDevice width={390} height={844} keyboard={keyboard}>
+        <div style={{ position: 'relative', height: '100%' }}>{children}</div>
+      </IOSDevice>
+    );
+  }
+
+  function App() {
+    const W = 390, H = 844;
+    const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+    // Re-apply theme on every render: mutates the shared D object in place so
+    // every child component reads the right tokens. Body class toggles the
+    // canvas backdrop colour.
+    applyTheme(t.dark);
+    // Primary/accent overrides — let the user remix the brand from Tweaks.
+    D.blue = t.primary;
+    D.orange = t.accent;
+    React.useEffect(() => {
+      document.body.classList.toggle('dark', !!t.dark);
+    }, [t.dark]);
+    return (
+      <React.Fragment>
+      <DesignCanvas>
+        <DCSection id="signup" title="Daily — Signup flow" subtitle="6 screens · iPhone 16 Pro">
+          <DCArtboard id="welcome" label="1 · Welcome" width={W} height={H}>
+            <Frame><S1_Welcome /></Frame>
+          </DCArtboard>
+          <DCArtboard id="signup" label="2 · Create account" width={W} height={H}>
+            <Frame keyboard><S2_SignUp /></Frame>
+          </DCArtboard>
+          <DCArtboard id="name" label="3 · Your name" width={W} height={H}>
+            <Frame keyboard><S3_Name /></Frame>
+          </DCArtboard>
+          <DCArtboard id="time" label="4 · Reminder time" width={W} height={H}>
+            <Frame><S4_Time /></Frame>
+          </DCArtboard>
+          <DCArtboard id="notif" label="5 · Notifications" width={W} height={H}>
+            <Frame><S5_Notifications /></Frame>
+          </DCArtboard>
+          <DCArtboard id="done" label="6 · All set" width={W} height={H}>
+            <Frame><S6_Done /></Frame>
+          </DCArtboard>
+          <DCArtboard id="login" label="Sign in (returning user)" width={W} height={H}>
+            <Frame><Login /></Frame>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="home" title="Home" subtitle="Where they land after onboarding">
+          <DCArtboard id="home-today" label="Today" width={W} height={H}>
+            <Frame><Home /></Frame>
+          </DCArtboard>
+          <DCArtboard id="home-all" label="All" width={W} height={H}>
+            <Frame><AllPage /></Frame>
+          </DCArtboard>
+          <DCArtboard id="home-stats" label="Stats" width={W} height={H}>
+            <Frame><StatsPage /></Frame>
+          </DCArtboard>
+          <DCArtboard id="home-you" label="You" width={W} height={H}>
+            <Frame><YouPage /></Frame>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="create" title="Create a reminder" subtitle="6 screens · from + button to confirmation">
+          <DCArtboard id="cr-title" label="1 · Title & type" width={W} height={H}>
+            <Frame><CR1_Title /></Frame>
+          </DCArtboard>
+          <DCArtboard id="cr-when" label="2 · Date & time" width={W} height={H}>
+            <Frame><CR2_When /></Frame>
+          </DCArtboard>
+          <DCArtboard id="cr-schedule" label="3 · Notification schedule" width={W} height={H}>
+            <Frame><CR3_Schedule /></Frame>
+          </DCArtboard>
+          <DCArtboard id="cr-custom" label="3b · Custom · pick days" width={W} height={H}>
+            <Frame><CR3b_Custom /></Frame>
+          </DCArtboard>
+          <DCArtboard id="cr-custom-times" label="3c · Custom · per-day times" width={W} height={H}>
+            <Frame><CR3c_CustomTimes /></Frame>
+          </DCArtboard>
+          <DCArtboard id="cr-message" label="4 · Message" width={W} height={H}>
+            <Frame><CR4_Message /></Frame>
+          </DCArtboard>
+          <DCArtboard id="cr-review" label="5 · Review" width={W} height={H}>
+            <Frame><CR5_Review /></Frame>
+          </DCArtboard>
+          <DCArtboard id="cr-done" label="6 · Created" width={W} height={H}>
+            <Frame><CR6_Created /></Frame>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="routine" title="Daily routine" subtitle="5 screens · weekday picker, multi-time, optional goal">
+          <DCArtboard id="rt-pick" label="1 · Pick routine" width={W} height={H}>
+            <Frame><RT1_Pick /></Frame>
+          </DCArtboard>
+          <DCArtboard id="rt-days" label="2 · Days of week" width={W} height={H}>
+            <Frame><RT2_Days /></Frame>
+          </DCArtboard>
+          <DCArtboard id="rt-times" label="3 · Times of day" width={W} height={H}>
+            <Frame><RT3_Times /></Frame>
+          </DCArtboard>
+          <DCArtboard id="rt-goal" label="4 · Daily goal" width={W} height={H}>
+            <Frame><RT4_Goal /></Frame>
+          </DCArtboard>
+          <DCArtboard id="rt-done" label="5 · Created" width={W} height={H}>
+            <Frame><RT5_Done /></Frame>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Theme">
+          <TweakToggle label="Dark mode" value={t.dark} onChange={(v) => setTweak('dark', v)} />
+        </TweakSection>
+        <TweakSection label="Brand">
+          <TweakColor label="Primary" value={t.primary} onChange={(v) => setTweak('primary', v)} options={['#2F6BFF', '#5B3DBF', '#1FB364', '#0E1116']} />
+          <TweakColor label="Accent" value={t.accent} onChange={(v) => setTweak('accent', v)} options={['#FF7A3D', '#FF3D7A', '#FFC53D', '#27C2BD']} />
+        </TweakSection>
+      </TweaksPanel>
+    </React.Fragment>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
