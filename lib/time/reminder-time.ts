@@ -1,4 +1,14 @@
 import { format } from "date-fns";
+
+/** "2:00 PM" from a 24h "HH:MM" string. */
+export function format12h(value: string): string {
+  const [hStr, mStr] = value.split(":");
+  const h = Number(hStr ?? "0");
+  const m = Number(mStr ?? "0");
+  const period = h >= 12 ? "PM" : "AM";
+  const display = ((h + 11) % 12) + 1;
+  return `${display}:${m.toString().padStart(2, "0")} ${period}`;
+}
 import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 
 /** Combine YYYY-MM-DD + HH:MM in `timezone` and return the UTC ISO instant. */

@@ -1,5 +1,6 @@
 "use client";
 
+import { format12h } from "@/lib/time/reminder-time";
 import { cn } from "@/lib/utils";
 
 type TimePickerProps = {
@@ -43,11 +44,4 @@ export function TimePicker({ value, onChange, label = "Time" }: TimePickerProps)
   );
 }
 
-export function format12h(value: string): string {
-  const [hStr, mStr] = value.split(":");
-  const h = Number(hStr ?? "0");
-  const m = Number(mStr ?? "0");
-  const period = h >= 12 ? "PM" : "AM";
-  const display = ((h + 11) % 12) + 1;
-  return `${display}:${m.toString().padStart(2, "0")} ${period}`;
-}
+export { format12h } from "@/lib/time/reminder-time";

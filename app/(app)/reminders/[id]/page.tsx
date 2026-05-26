@@ -1,4 +1,3 @@
-import { format12h } from "@/components/reminders/TimePicker";
 import { deleteReminderAction } from "@/lib/reminders/actions";
 import {
   PRESET_LABELS,
@@ -7,7 +6,12 @@ import {
   readSchedule,
 } from "@/lib/reminders/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { describeDaysUntil, formatEventDate, formatEventTime } from "@/lib/time/reminder-time";
+import {
+  describeDaysUntil,
+  format12h,
+  formatEventDate,
+  formatEventTime,
+} from "@/lib/time/reminder-time";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
