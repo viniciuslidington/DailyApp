@@ -12,6 +12,9 @@ export default function TodayPage() {
         <Link href="/reminders/new" className="text-action text-blue font-medium">
           + New reminder
         </Link>
+        <Link href="/routines/new" className="text-action text-blue font-medium">
+          + New routine
+        </Link>
       </div>
       <form action={signOut}>
         <button type="submit" className="text-action text-ink-2 font-medium">
