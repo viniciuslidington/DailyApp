@@ -108,3 +108,21 @@ export async function toggleRoutineLog(
   revalidatePath("/today");
   return { ok: true, data: undefined };
 }
+
+export async function pauseRoutineAction(formData: FormData): Promise<void> {
+  const id = formData.get("id");
+  if (typeof id !== "string" || !id) return;
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase
+    .from("routines")
+    .update({ active: false, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("user_id", user.id);
+  revalidatePath("/today");
+  revalidatePath("/all");
+  redirect("/today");
+}

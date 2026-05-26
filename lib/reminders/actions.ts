@@ -64,3 +64,13 @@ export async function deleteReminderAction(formData: FormData): Promise<void> {
   revalidatePath("/all");
   redirect("/today");
 }
+
+export async function markReminderDoneAction(formData: FormData): Promise<void> {
+  const id = formData.get("id");
+  if (typeof id !== "string" || !id) return;
+  const supabase = await createSupabaseServerClient();
+  await supabase.from("reminders").delete().eq("id", id);
+  revalidatePath("/today");
+  revalidatePath("/all");
+  redirect("/today");
+}

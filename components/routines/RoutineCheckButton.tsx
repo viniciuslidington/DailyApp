@@ -4,9 +4,19 @@ import { toggleRoutineLog } from "@/lib/routines/actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type Props = { routineId: string; logDate: string; isDone: boolean };
+type Props = {
+  routineId: string;
+  logDate: string;
+  isDone: boolean;
+  borderColorClass?: string;
+};
 
-export function RoutineCheckButton({ routineId, logDate, isDone: initial }: Props) {
+export function RoutineCheckButton({
+  routineId,
+  logDate,
+  isDone: initial,
+  borderColorClass = "border-mute",
+}: Props) {
   const router = useRouter();
   const [isDone, setIsDone] = useState(initial);
   const [loading, setLoading] = useState(false);
@@ -36,15 +46,15 @@ export function RoutineCheckButton({ routineId, logDate, isDone: initial }: Prop
       type="button"
       onClick={toggle}
       aria-label={isDone ? "Mark undone" : "Mark done"}
-      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shrink-0 border-[1.5px] ${
-        isDone ? "bg-success border-success" : "bg-transparent border-mute"
+      className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 border-[1.5px] transition-colors ${
+        isDone ? "bg-blue border-blue" : `bg-transparent ${borderColorClass}`
       }`}
     >
       {isDone && (
-        <svg width="12" height="10" viewBox="0 0 12 10" fill="none" aria-hidden>
+        <svg width="13" height="11" viewBox="0 0 13 11" fill="none" aria-hidden>
           <title>Done</title>
           <path
-            d="M1 5l3.5 3.5 6.5-8"
+            d="M1 5.5l4 4L12 1"
             stroke="white"
             strokeWidth="2"
             strokeLinecap="round"
