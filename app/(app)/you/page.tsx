@@ -1,6 +1,7 @@
 import { NotificationToggle } from "@/components/shared/NotificationToggle";
 import { signOut } from "@/lib/auth/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 export default async function YouPage() {
   const supabase = await createSupabaseServerClient();
@@ -46,6 +47,12 @@ export default async function YouPage() {
         <div className="px-4 py-3.5 flex items-center justify-between">
           <p className="text-body text-ink-2">Notifications</p>
           <NotificationToggle />
+        </div>
+        <div className="px-4 py-3.5 flex items-center justify-between">
+          <p className="text-body text-ink-2">Add to Home Screen</p>
+          <Link href="/install" className="text-caption text-blue font-medium">
+            Install
+          </Link>
         </div>
       </div>
 

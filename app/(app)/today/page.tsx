@@ -17,7 +17,7 @@ export default async function TodayPage() {
   const { data: prefs } = await supabase
     .from("user_preferences")
     .select("display_name, timezone")
-    .single();
+    .maybeSingle();
 
   const tz = prefs?.timezone ?? "UTC";
   const now = new Date();
