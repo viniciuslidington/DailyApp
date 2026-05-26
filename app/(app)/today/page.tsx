@@ -189,23 +189,6 @@ export default async function TodayPage() {
           </div>
         </section>
       )}
-
-      {/* FAB */}
-      <Link
-        href="/routines/new"
-        aria-label="New routine"
-        className="fixed right-6 w-14 h-14 rounded-full flex items-center justify-center"
-        style={{
-          bottom: "calc(100px + env(safe-area-inset-bottom))",
-          background: "var(--color-blue)",
-          boxShadow: "0 4px 16px rgba(47, 107, 255, 0.4)",
-        }}
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-          <title>New</title>
-          <path d="M10 4v12M4 10h12" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-        </svg>
-      </Link>
     </main>
   );
 }
