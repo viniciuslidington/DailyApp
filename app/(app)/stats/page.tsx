@@ -23,7 +23,7 @@ const DOW_FULL = [
 export default async function StatsPage() {
   const supabase = await createSupabaseServerClient();
 
-  const { data: prefs } = await supabase.from("user_preferences").select("timezone").single();
+  const { data: prefs } = await supabase.from("user_preferences").select("timezone").maybeSingle();
 
   const tz = prefs?.timezone ?? "UTC";
 
