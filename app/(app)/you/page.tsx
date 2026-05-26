@@ -1,3 +1,4 @@
+import { NotificationToggle } from "@/components/shared/NotificationToggle";
 import { signOut } from "@/lib/auth/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -44,7 +45,7 @@ export default async function YouPage() {
         </div>
         <div className="px-4 py-3.5 flex items-center justify-between">
           <p className="text-body text-ink-2">Notifications</p>
-          <p className="text-caption text-ink-3">Coming in Phase 6</p>
+          <NotificationToggle />
         </div>
       </div>
 
