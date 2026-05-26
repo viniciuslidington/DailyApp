@@ -10,9 +10,9 @@
  *   VAPID_SUBJECT      — mailto: or https: contact URI
  */
 
+// deno-lint-ignore-file no-explicit-any
 // @deno-types="npm:@types/web-push@3"
 import webpush from "npm:web-push";
-// deno-lint-ignore-file no-explicit-any
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const vapidPublic = Deno.env.get("VAPID_PUBLIC_KEY") ?? "";
@@ -33,25 +33,30 @@ Deno.serve(async (_req: Request): Promise<Response> => {
     return json({ error: "VAPID keys not configured" }, 500);
   }
 
-  const { data: notifications, error: fetchErr } = await db
-    .from("scheduled_notifications")
-    .select("id, user_id, payload, attempts")
-    .eq("status", "pending")
-    .lte("send_at", new Date().toISOString())
-    .order("send_at")
-    .limit(50);
+  // claim_pending_notifications atomically transitions matching rows from
+  // 'pending' → 'processing' (FOR UPDATE SKIP LOCKED), so concurrent
+  // invocations never claim the same row and can't double-deliver.
+  const { data: notifications, error: fetchErr } = await db.rpc("claim_pending_notifications", {
+    batch_size: 50,
+  });
 
   if (fetchErr) return json({ error: fetchErr.message }, 500);
 
-  const stats = { sent: 0, failed: 0, skipped: 0 };
+  const stats = { sent: 0, failed: 0, skipped: 0, errors: 0 };
 
   for (const notif of notifications ?? []) {
-    const { data: subs } = await db
+    const { data: subs, error: subsErr } = await db
       .from("push_subscriptions")
       .select("endpoint, p256dh, auth")
       .eq("user_id", notif.user_id);
 
-    if (!subs?.length) {
+    if (subsErr) {
+      console.error("[dispatch_push] fetch subscriptions error:", subsErr.message);
+      stats.errors++;
+      continue;
+    }
+
+    if (subs.length === 0) {
       await db
         .from("scheduled_notifications")
         .update({ status: "cancelled", sent_at: new Date().toISOString() })

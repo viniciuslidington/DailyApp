@@ -22,10 +22,14 @@ export function NotificationToggle() {
     setWorking(true);
     try {
       const result = await requestAndSubscribe();
-      if (result.permission === "granted") {
-        await recordNotificationPermission();
-      }
       setStatus(result.permission as Status);
+      if (result.permission === "granted") {
+        try {
+          await recordNotificationPermission();
+        } catch (err) {
+          console.error("[NotificationToggle] recordNotificationPermission failed:", err);
+        }
+      }
     } finally {
       setWorking(false);
     }
