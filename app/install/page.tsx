@@ -2,13 +2,13 @@
 
 import { Button } from "@/components/shared/Button";
 import { Logo } from "@/components/shared/Logo";
+import {
+  type BeforeInstallPromptEvent,
+  clearInstallPrompt,
+  getInstallPrompt,
+} from "@/lib/install/prompt";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  readonly userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
-}
 
 type Platform = "ios" | "android" | "other";
 type State = "checking" | "promptable" | "manual";
@@ -28,28 +28,27 @@ export default function InstallPage() {
     const ua = navigator.userAgent;
     if (/iPhone|iPad|iPod/i.test(ua)) {
       setPlatform("ios");
-      setState("manual");
     } else if (/Android/i.test(ua)) {
       setPlatform("android");
-      setState("manual");
-    } else {
-      setPlatform("other");
-      setState("manual");
     }
 
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+    // InstallPromptCapture in the root layout captures this event from the very
+    // first page load, so it's available even when the user navigated here via
+    // client-side routing (where the event would have already fired).
+    const stored = getInstallPrompt();
+    if (stored) {
+      setDeferredPrompt(stored);
       setState("promptable");
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    } else {
+      setState("manual");
+    }
   }, [router]);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
+    clearInstallPrompt();
     setDeferredPrompt(null);
     if (outcome === "accepted") router.replace("/today");
     else setState("manual");
