@@ -46,8 +46,11 @@ export const ROUTINE_ICON_COLORS: Record<RoutineType, string> = {
   custom: "text-ink-2",
 };
 
-// "HH:MM" 24-hour
-const timeOfDay = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Time must be HH:MM.");
+// Accept HH:MM or HH:MM:SS (Postgres TIME[] returns seconds) and normalize to HH:MM
+const timeOfDay = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/, "Time must be HH:MM.")
+  .transform((t) => t.slice(0, 5));
 
 export const routineInputSchema = z.object({
   title: z.string().trim().min(1, "Give it a name.").max(80),

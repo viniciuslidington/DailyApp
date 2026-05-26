@@ -25,6 +25,8 @@ export default function RT5Page() {
 
   useEffect(() => {
     if (called.current) return;
+    // Guard against re-entry with an already-reset draft (e.g. BFCache after success)
+    if (!title || daysOfWeek.length === 0 || timesOfDay.length === 0) return;
     called.current = true;
 
     createRoutine({

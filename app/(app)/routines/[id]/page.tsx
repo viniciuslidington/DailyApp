@@ -5,40 +5,32 @@ import {
   ROUTINE_LABELS,
   ROUTINE_TINTS,
   type RoutineType,
-  WEEKDAY_SHORT,
   formatDaysOfWeek,
 } from "@/lib/routines/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { format12h } from "@/lib/time/reminder-time";
+import { formatInTimeZone } from "date-fns-tz";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarkDoneButton } from "./MarkDoneButton";
 
 type Props = { params: Promise<{ id: string }> };
 
-function todayLocal(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
 export default async function RoutineDetailPage({ params }: Props) {
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
 
-  const [{ data: routine }, { data: todayLog }] = await Promise.all([
-    supabase.from("routines").select("*").eq("id", id).single(),
-    supabase
-      .from("routine_logs")
-      .select("id, completed")
-      .eq("routine_id", id)
-      .eq("log_date", todayLocal())
-      .maybeSingle(),
-  ]);
-
+  const { data: routine } = await supabase.from("routines").select("*").eq("id", id).single();
   if (!routine) notFound();
+
+  const logDate = formatInTimeZone(new Date(), routine.timezone, "yyyy-MM-dd");
+
+  const { data: todayLog } = await supabase
+    .from("routine_logs")
+    .select("id, completed")
+    .eq("routine_id", id)
+    .eq("log_date", logDate)
+    .maybeSingle();
 
   const type = routine.routine_type as RoutineType;
   const isDoneToday = todayLog?.completed === true;
@@ -100,7 +92,7 @@ export default async function RoutineDetailPage({ params }: Props) {
         {/* Today's completion */}
         <div className="bg-card rounded-2xl border border-hair px-4 py-4">
           <p className="text-caption text-ink-3 mb-3">Today</p>
-          <MarkDoneButton routineId={id} logDate={todayLocal()} isDone={isDoneToday} />
+          <MarkDoneButton routineId={id} logDate={logDate} isDone={isDoneToday} />
         </div>
       </div>
 

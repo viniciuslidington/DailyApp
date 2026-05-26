@@ -3,13 +3,13 @@
 import { cn } from "@/lib/utils";
 
 const DAYS = [
-  { label: "S", value: 0 },
-  { label: "M", value: 1 },
-  { label: "T", value: 2 },
-  { label: "W", value: 3 },
-  { label: "T", value: 4 },
-  { label: "F", value: 5 },
-  { label: "S", value: 6 },
+  { label: "S", full: "Sunday", value: 0 },
+  { label: "M", full: "Monday", value: 1 },
+  { label: "T", full: "Tuesday", value: 2 },
+  { label: "W", full: "Wednesday", value: 3 },
+  { label: "T", full: "Thursday", value: 4 },
+  { label: "F", full: "Friday", value: 5 },
+  { label: "S", full: "Saturday", value: 6 },
 ] as const;
 
 type WeekdayPickerProps = {
@@ -31,7 +31,7 @@ export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
 
   return (
     <div className="flex gap-2 justify-between">
-      {DAYS.map(({ label, value }) => {
+      {DAYS.map(({ label, full, value }) => {
         const active = set.has(value);
         return (
           <button
@@ -39,6 +39,7 @@ export function WeekdayPicker({ selected, onChange }: WeekdayPickerProps) {
             type="button"
             onClick={() => toggle(value)}
             aria-pressed={active}
+            aria-label={full}
             className={cn(
               "flex-1 h-11 rounded-xl text-meta font-semibold transition-colors",
               active ? "bg-blue text-white" : "bg-card border border-hair text-ink-2",
