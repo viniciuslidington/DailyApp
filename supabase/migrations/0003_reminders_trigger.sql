@@ -18,6 +18,8 @@ CREATE OR REPLACE FUNCTION generate_reminder_notifications(
 )
 RETURNS VOID
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   v_offset JSONB;
@@ -77,6 +79,8 @@ $$;
 CREATE OR REPLACE FUNCTION reminders_refresh_notifications()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
   DELETE FROM scheduled_notifications
@@ -103,6 +107,8 @@ EXECUTE FUNCTION reminders_refresh_notifications();
 CREATE OR REPLACE FUNCTION reminders_cancel_notifications()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
   DELETE FROM scheduled_notifications
