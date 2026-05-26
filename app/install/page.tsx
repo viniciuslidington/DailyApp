@@ -4,6 +4,7 @@ import { Button } from "@/components/shared/Button";
 import { Logo } from "@/components/shared/Logo";
 import {
   type BeforeInstallPromptEvent,
+  captureInstallPrompt,
   clearInstallPrompt,
   getInstallPrompt,
 } from "@/lib/install/prompt";
@@ -32,16 +33,27 @@ export default function InstallPage() {
       setPlatform("android");
     }
 
-    // InstallPromptCapture in the root layout captures this event from the very
-    // first page load, so it's available even when the user navigated here via
-    // client-side routing (where the event would have already fired).
+    // Common path: user navigated here via client-side routing after the root
+    // layout's InstallPromptCapture already caught the event.
     const stored = getInstallPrompt();
     if (stored) {
       setDeferredPrompt(stored);
       setState("promptable");
-    } else {
-      setState("manual");
+      return;
     }
+
+    // Direct-load path: event hasn't fired yet. Show manual instructions now
+    // but also listen so we can upgrade to the one-tap button if it arrives.
+    setState("manual");
+    const handler = (e: Event) => {
+      e.preventDefault();
+      const prompt = e as BeforeInstallPromptEvent;
+      captureInstallPrompt(prompt);
+      setDeferredPrompt(prompt);
+      setState("promptable");
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, [router]);
 
   const handleInstall = async () => {
