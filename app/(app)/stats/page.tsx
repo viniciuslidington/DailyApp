@@ -41,6 +41,7 @@ export default async function StatsPage() {
       .from("routine_logs")
       .select("routine_id, log_date")
       .gte("log_date", days7[0])
+      .lte("log_date", days7[6])
       .eq("completed", true),
   ]);
 

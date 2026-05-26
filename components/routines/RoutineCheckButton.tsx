@@ -14,12 +14,21 @@ export function RoutineCheckButton({ routineId, logDate, isDone: initial }: Prop
   const toggle = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (loading) return;
-    setIsDone((v) => !v);
+    const prev = isDone;
+    setIsDone(!prev);
     setLoading(true);
-    const result = await toggleRoutineLog(routineId, logDate, isDone);
-    if (!result.ok) setIsDone(isDone);
-    setLoading(false);
-    router.refresh();
+    try {
+      const result = await toggleRoutineLog(routineId, logDate, prev);
+      if (!result.ok) {
+        setIsDone(prev);
+      } else {
+        router.refresh();
+      }
+    } catch {
+      setIsDone(prev);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

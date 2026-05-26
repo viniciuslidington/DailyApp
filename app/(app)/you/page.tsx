@@ -6,10 +6,10 @@ export default async function YouPage() {
 
   const [{ data: authData }, { data: prefs }] = await Promise.all([
     supabase.auth.getUser(),
-    supabase.from("user_preferences").select("display_name, timezone").single(),
+    supabase.from("user_preferences").select("display_name, timezone").maybeSingle(),
   ]);
 
-  const displayName = prefs?.display_name ?? "";
+  const displayName = prefs?.display_name || authData.user?.email?.split("@")[0] || "User";
   const initials =
     displayName
       .split(" ")

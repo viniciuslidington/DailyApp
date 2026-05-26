@@ -20,10 +20,11 @@ export default async function TodayPage() {
     .single();
 
   const tz = prefs?.timezone ?? "UTC";
-  const zonedNow = toZonedTime(new Date(), tz);
+  const now = new Date();
+  const zonedNow = toZonedTime(now, tz);
   const todayDow = zonedNow.getDay();
-  const logDate = formatInTimeZone(new Date(), tz, "yyyy-MM-dd");
-  const todayLabel = formatInTimeZone(new Date(), tz, "EEEE, MMMM d");
+  const logDate = formatInTimeZone(now, tz, "yyyy-MM-dd");
+  const todayLabel = formatInTimeZone(now, tz, "EEEE, MMMM d");
   const hour = zonedNow.getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
@@ -40,7 +41,7 @@ export default async function TodayPage() {
     supabase
       .from("reminders")
       .select("id, title, reminder_type, event_date, timezone")
-      .gte("event_date", new Date().toISOString())
+      .gte("event_date", now.toISOString())
       .order("event_date")
       .limit(5),
   ]);
