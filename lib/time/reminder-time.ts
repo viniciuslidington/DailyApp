@@ -40,6 +40,14 @@ export function formatDayOfMonth(iso: string, timezone: string): string {
   return formatInTimeZone(new Date(iso), timezone, "d");
 }
 
+/** { days: 6, hours: 4 } until the event — both 0 if event is in the past. */
+export function timeUntilEvent(iso: string): { days: number; hours: number } {
+  const diffMs = new Date(iso).getTime() - Date.now();
+  if (diffMs <= 0) return { days: 0, hours: 0 };
+  const totalHours = Math.floor(diffMs / 3_600_000);
+  return { days: Math.floor(totalHours / 24), hours: totalHours % 24 };
+}
+
 /** "in 6 days" / "Tomorrow" / "Today" / "5 days ago" relative to now. */
 export function describeDaysUntil(iso: string, timezone: string): string {
   const eventDayKey = formatInTimeZone(new Date(iso), timezone, "yyyy-MM-dd");

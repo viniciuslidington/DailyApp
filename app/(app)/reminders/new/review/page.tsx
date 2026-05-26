@@ -1,17 +1,90 @@
 "use client";
 
-import { format12h } from "@/components/reminders/TimePicker";
 import { TYPE_VISUALS } from "@/components/reminders/TypeChip";
 import { Button } from "@/components/shared/Button";
 import { FlowHeader } from "@/components/shared/FlowHeader";
 import { createReminder } from "@/lib/reminders/actions";
-import { PRESET_LABELS } from "@/lib/reminders/schema";
+import type { CustomOffset, SchedulePreset } from "@/lib/reminders/schema";
 import { useReminderDraft } from "@/lib/store/reminder-draft";
 import { formatEventDate, formatEventTime, toUtcIso } from "@/lib/time/reminder-time";
-import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { addDays, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { ReactNode } from "react";
+
+// ── helpers ────────────────────────────────────────────────────────────────
+
+function scheduleLabel(
+  scheduleKind: "preset" | "custom",
+  preset: SchedulePreset,
+  customOffsets: CustomOffset[],
+): string {
+  if (scheduleKind === "preset") {
+    const labels: Record<SchedulePreset, string> = {
+      on_day: "On the day only",
+      day_before: "Day before",
+      three_days: "3 days ahead",
+      week_before: "1 week ahead",
+    };
+    return labels[preset];
+  }
+  const days = new Set(customOffsets.map((o) => o.days));
+  if (days.size === 3 && days.has(3) && days.has(1) && days.has(0)) {
+    return "3 days · 1 day · day of";
+  }
+  const sorted = [...customOffsets].sort((a, b) => b.days - a.days);
+  if (sorted.length >= 2 && sorted[sorted.length - 1]?.days === 0) {
+    const max = sorted[0]?.days ?? 0;
+    let consecutive = true;
+    for (let i = 0; i <= max; i++) {
+      if (!days.has(i)) {
+        consecutive = false;
+        break;
+      }
+    }
+    if (consecutive) return "Every day";
+  }
+  return "Custom";
+}
+
+type TimelineDot = { date: Date; kind: "notification" | "muted" | "event" };
+
+function computeTimeline(
+  scheduleKind: "preset" | "custom",
+  preset: SchedulePreset,
+  customOffsets: CustomOffset[],
+  eventDate: string,
+): TimelineDot[] {
+  const eventDay = parseISO(eventDate);
+
+  let notifOffsets: number[];
+  if (scheduleKind === "preset") {
+    const map: Record<SchedulePreset, number[]> = {
+      on_day: [0],
+      day_before: [1, 0],
+      three_days: [3, 0],
+      week_before: [7, 0],
+    };
+    notifOffsets = map[preset];
+  } else {
+    notifOffsets = [...new Set(customOffsets.map((o) => o.days))];
+  }
+
+  const maxOffset = Math.max(...notifOffsets);
+  const notifSet = new Set(notifOffsets);
+
+  const dots: TimelineDot[] = [];
+  for (let d = maxOffset; d >= 0; d--) {
+    dots.push({
+      date: addDays(eventDay, -d),
+      kind: d === 0 ? "event" : notifSet.has(d) ? "notification" : "muted",
+    });
+  }
+  return dots;
+}
+
+// ── page ───────────────────────────────────────────────────────────────────
 
 export default function CR5Page() {
   const router = useRouter();
@@ -57,6 +130,9 @@ export default function CR5Page() {
 
   const typeVisual = TYPE_VISUALS[reminderType];
   const eventIso = toUtcIso(eventDate, eventTime, timezone);
+  const scheduleSummary = scheduleLabel(scheduleKind, preset, customOffsets);
+  const notifCount = scheduleKind === "preset" ? 1 : customOffsets.length;
+  const timeline = computeTimeline(scheduleKind, preset, customOffsets, eventDate);
 
   return (
     <main className="absolute inset-0 flex flex-col bg-bg">
@@ -64,94 +140,105 @@ export default function CR5Page() {
         <FlowHeader
           step={5}
           total={5}
-          title="Looks good?"
-          sub="Review your reminder before saving."
+          title="Ready to set this up?"
+          sub="Review your reminder, then save."
           back="/reminders/new/message"
         />
       </div>
       <div className="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-3">
-        <ReviewRow
-          label="Title & type"
-          editHref="/reminders/new"
-          value={
-            <div className="flex items-center gap-2.5">
-              <span
-                className={`w-7 h-7 rounded-sm flex items-center justify-center text-white text-meta font-bold ${typeVisual.tintClass}`}
-                aria-hidden
-              >
-                {typeVisual.icon}
-              </span>
-              <span className="text-body-lg text-ink">{title}</span>
-            </div>
-          }
-        />
-        <ReviewRow
-          label="Date & time"
-          editHref="/reminders/new/when"
-          value={
-            <div>
-              <p className="text-body-lg text-ink">{formatEventDate(eventIso, timezone)}</p>
-              <p className="text-body text-ink-2">{formatEventTime(eventIso, timezone)}</p>
-            </div>
-          }
-        />
-        <ReviewRow
-          label="Notifications"
-          editHref="/reminders/new/schedule"
-          value={
-            scheduleKind === "preset" ? (
-              <p className="text-body-lg text-ink">{PRESET_LABELS[preset]}</p>
-            ) : (
-              <div className="flex flex-col gap-1">
-                {customOffsets.map((o) => (
-                  <p key={o.days} className="text-body text-ink">
-                    {o.days === 0 ? "On the day" : `${o.days} day${o.days > 1 ? "s" : ""} before`} ·{" "}
-                    {format12h(o.time)}
-                  </p>
-                ))}
+        {/* Card 1 — Blue gradient: type + title + date */}
+        <div
+          className="rounded-3xl px-5 py-5"
+          style={{
+            background:
+              "linear-gradient(135deg, var(--color-blue) 0%, var(--color-blue-dark) 100%)",
+            boxShadow: "rgba(47, 107, 255, 0.2) 0px 14px 36px 0px",
+          }}
+        >
+          {/* Type badge */}
+          <span className="inline-flex items-center gap-1.5 px-3 h-[22px] rounded-[7px] bg-white/[0.18] text-white text-caption font-semibold mb-3 uppercase tracking-wide">
+            <span aria-hidden>{typeVisual.icon}</span>
+            {typeVisual.label}
+          </span>
+
+          {/* Title */}
+          <h2 className="text-h2 font-bold text-white leading-snug mb-1">{title}</h2>
+
+          {/* Date · time */}
+          <p className="text-body text-white/70">
+            {formatEventDate(eventIso, timezone)}
+            <span className="mx-1">·</span>
+            {formatEventTime(eventIso, timezone)}
+          </p>
+        </div>
+
+        {/* Card 2 — White: schedule / notifications / message rows */}
+        <div className="bg-card rounded-3xl border border-hair overflow-hidden">
+          {/* Schedule row */}
+          <div className="flex items-center justify-between px-5 py-4">
+            <span className="text-body text-ink-2">Schedule</span>
+            <span className="text-body font-medium text-ink text-right">{scheduleSummary}</span>
+          </div>
+
+          <div className="border-t border-hair mx-5" />
+
+          {/* Notifications row */}
+          <div className="flex items-center justify-between px-5 py-4">
+            <span className="text-body text-ink-2">Notifications</span>
+            <span className="text-body font-medium text-ink">{notifCount} in total</span>
+          </div>
+
+          {message.trim() ? (
+            <>
+              <div className="border-t border-hair mx-5" />
+              {/* Message row */}
+              <div className="flex items-start justify-between gap-4 px-5 py-4">
+                <span className="text-body text-ink-2 shrink-0">Message</span>
+                <p className="text-body text-ink italic text-right leading-snug">
+                  &ldquo;{message}&rdquo;
+                </p>
               </div>
-            )
-          }
-        />
-        {message.trim() ? (
-          <ReviewRow
-            label="Note"
-            editHref="/reminders/new/message"
-            value={<p className="text-body text-ink leading-snug">{message}</p>}
-          />
-        ) : null}
+            </>
+          ) : null}
+        </div>
+
+        {/* Card 3 — You'll be pinged timeline */}
+        <div className="bg-card rounded-3xl border border-hair px-5 py-4">
+          <p className="text-caption text-ink-3 uppercase tracking-wide mb-4">
+            You&apos;ll be pinged
+          </p>
+
+          {/* Timeline */}
+          <div className="relative flex items-center justify-between px-0.5">
+            {/* connecting line */}
+            <div className="absolute left-0 right-0 top-[7px] h-[1.5px] bg-track" aria-hidden />
+            {timeline.map((dot, i) => (
+              <div key={`dot-${i}`} className="flex flex-col items-center gap-1.5 z-10">
+                <div
+                  className={cn(
+                    "rounded-full shrink-0",
+                    dot.kind === "event"
+                      ? "w-[14px] h-[14px] bg-orange"
+                      : dot.kind === "notification"
+                        ? "w-2 h-2 bg-blue"
+                        : "w-2 h-2 bg-track",
+                  )}
+                />
+                <span className="text-[10px] leading-none text-ink-3">
+                  {format(dot.date, "EEE")}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {error ? <p className="text-caption text-orange text-center px-2">{error}</p> : null}
       </div>
       <div className="px-6 pb-3.5">
         <Button variant="primary" loading={loading} onClick={handleCreate}>
-          Create reminder
+          Save reminder
         </Button>
       </div>
     </main>
-  );
-}
-
-function ReviewRow({
-  label,
-  editHref,
-  value,
-}: {
-  label: string;
-  editHref: string;
-  value: ReactNode;
-}) {
-  return (
-    <div className="bg-card rounded-2xl border border-hair px-4 py-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <p className="text-caption text-ink-3 mb-1.5">{label}</p>
-          {value}
-        </div>
-        <Link href={editHref} className="text-meta text-blue font-medium shrink-0 mt-0.5">
-          Edit
-        </Link>
-      </div>
-    </div>
   );
 }
