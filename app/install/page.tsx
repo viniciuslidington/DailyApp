@@ -2,13 +2,14 @@
 
 import { Button } from "@/components/shared/Button";
 import { Logo } from "@/components/shared/Logo";
+import {
+  type BeforeInstallPromptEvent,
+  captureInstallPrompt,
+  clearInstallPrompt,
+  getInstallPrompt,
+} from "@/lib/install/prompt";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  readonly userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
-}
 
 type Platform = "ios" | "android" | "other";
 type State = "checking" | "promptable" | "manual";
@@ -28,18 +29,27 @@ export default function InstallPage() {
     const ua = navigator.userAgent;
     if (/iPhone|iPad|iPod/i.test(ua)) {
       setPlatform("ios");
-      setState("manual");
     } else if (/Android/i.test(ua)) {
       setPlatform("android");
-      setState("manual");
-    } else {
-      setPlatform("other");
-      setState("manual");
     }
 
+    // Common path: user navigated here via client-side routing after the root
+    // layout's InstallPromptCapture already caught the event.
+    const stored = getInstallPrompt();
+    if (stored) {
+      setDeferredPrompt(stored);
+      setState("promptable");
+      return;
+    }
+
+    // Direct-load path: event hasn't fired yet. Show manual instructions now
+    // but also listen so we can upgrade to the one-tap button if it arrives.
+    setState("manual");
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      const prompt = e as BeforeInstallPromptEvent;
+      captureInstallPrompt(prompt);
+      setDeferredPrompt(prompt);
       setState("promptable");
     };
     window.addEventListener("beforeinstallprompt", handler);
@@ -50,6 +60,7 @@ export default function InstallPage() {
     if (!deferredPrompt) return;
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
+    clearInstallPrompt();
     setDeferredPrompt(null);
     if (outcome === "accepted") router.replace("/today");
     else setState("manual");
