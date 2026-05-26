@@ -85,3 +85,10 @@ export const TYPE_LABELS: Record<ReminderType, string> = {
   deadline: "Deadline",
   task: "Task",
 };
+
+export const REMINDER_TYPE_VISUALS: Record<ReminderType, { icon: string; tintClass: string }> = {
+  meeting: { icon: "◆", tintClass: "bg-blue" },
+  event: { icon: "✦", tintClass: "bg-orange" },
+  deadline: { icon: "◷", tintClass: "bg-purple" },
+  task: { icon: "✓", tintClass: "bg-success" },
+};
