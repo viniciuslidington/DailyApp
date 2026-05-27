@@ -25,7 +25,7 @@ export function DaysAwayBadge({ dateStr }: DaysAwayBadgeProps) {
   return (
     <div
       style={{
-        background: "#FDEEE3",
+        background: "var(--color-orange-soft)",
         borderRadius: 9999,
         padding: "14px 20px",
         display: "flex",
@@ -39,15 +39,15 @@ export function DaysAwayBadge({ dateStr }: DaysAwayBadgeProps) {
           width: 10,
           height: 10,
           borderRadius: "50%",
-          background: "#E06A00",
+          background: "var(--color-orange)",
           flexShrink: 0,
         }}
       />
 
       {/* Date + countdown */}
       <span style={{ fontSize: 15, lineHeight: 1.3 }}>
-        <span style={{ color: "#7A3300", fontWeight: 600 }}>{formattedDate}</span>
-        <span style={{ color: "#B0744A", fontWeight: 400 }}> · {label}</span>
+        <span style={{ color: "var(--color-orange-ink)", fontWeight: 600 }}>{formattedDate}</span>
+        <span style={{ color: "var(--color-ink-2)", fontWeight: 400 }}> · {label}</span>
       </span>
     </div>
   );

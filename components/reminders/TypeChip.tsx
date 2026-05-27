@@ -34,7 +34,6 @@ export function TypeChip({ type, selected, onSelect }: TypeChipProps) {
           "w-8 h-8 rounded-sm flex items-center justify-center text-white text-action font-bold",
           v.tintClass,
         )}
-        style={{ color: "#ffffff" }}
         aria-hidden
       >
         {v.icon}
