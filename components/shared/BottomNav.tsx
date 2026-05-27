@@ -146,7 +146,7 @@ export function BottomNav() {
   return (
     <nav
       className="fixed bottom-0 inset-x-0 z-40 px-4"
-      style={{ paddingBottom: "calc(36px + env(safe-area-inset-bottom))" }}
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div
         className="h-16 rounded-3xl bg-card border border-hair flex items-center"

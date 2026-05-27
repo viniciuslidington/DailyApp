@@ -29,7 +29,7 @@ export function FabWithSheet() {
       <div
         className="fixed z-50"
         style={{
-          bottom: "calc(172px + env(safe-area-inset-bottom))",
+          bottom: "calc(146px + env(safe-area-inset-bottom))",
           left: 16,
           right: 16,
           pointerEvents: open ? "auto" : "none",
@@ -44,11 +44,6 @@ export function FabWithSheet() {
           className="bg-card rounded-3xl border border-hair overflow-hidden"
           style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
         >
-          {/* Pill handle */}
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-9 h-1 rounded-full bg-mute" />
-          </div>
-
           {/* Reminder option */}
           <Link
             href="/reminders/new"
@@ -97,7 +92,7 @@ export function FabWithSheet() {
         aria-expanded={open}
         className="fixed right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center"
         style={{
-          bottom: "calc(100px + env(safe-area-inset-bottom))",
+          bottom: "calc(76px + env(safe-area-inset-bottom))",
           background: "var(--color-blue)",
           boxShadow: "0 4px 16px rgba(47, 107, 255, 0.4)",
         }}
