@@ -1,6 +1,7 @@
 "use client";
 
 import { DatePicker } from "@/components/reminders/DatePicker";
+import { DaysAwayBadge } from "@/components/reminders/DaysAwayBadge";
 import { TimePicker } from "@/components/reminders/TimePicker";
 import { Button } from "@/components/shared/Button";
 import { FlowHeader } from "@/components/shared/FlowHeader";
@@ -28,6 +29,7 @@ export default function CR2Page() {
       <div className="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-4">
         <DatePicker value={eventDate} onChange={setEventDate} />
         <TimePicker value={eventTime} onChange={setEventTime} label="Event time" />
+        <DaysAwayBadge dateStr={eventDate} />
       </div>
       <div className="px-6 pb-3.5">
         <Button variant="primary" onClick={() => router.push("/reminders/new/schedule")}>

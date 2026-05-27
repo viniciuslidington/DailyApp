@@ -80,7 +80,7 @@
   --space-11: 28px;
   --space-12: 32px;
   --space-16: 64px;
-  --space-18: 70px;
+  --space-18: calc(env(safe-area-inset-top, 0px) + 16px);
   --space-30: 120px;
 
   /* Motion (DESIGN.md §2.6) */

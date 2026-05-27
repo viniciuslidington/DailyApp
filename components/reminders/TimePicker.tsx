@@ -19,28 +19,27 @@ type TimePickerProps = {
  */
 export function TimePicker({ value, onChange, label = "Time" }: TimePickerProps) {
   return (
-    <div className="flex items-center justify-between bg-card rounded-lg border border-hair px-[18px] py-3.5">
+    <label className="relative flex items-center justify-between bg-card rounded-lg border border-hair px-[18px] py-3.5 cursor-pointer">
       <div>
         <div className="text-caption text-ink-2">{label}</div>
         <div className="text-body-lg text-ink tabular-nums mt-0.5">{format12h(value)}</div>
       </div>
-      <label className="relative">
-        <span
-          className={cn(
-            "px-3.5 py-2 rounded-sm bg-blue-soft text-blue text-meta font-semibold cursor-pointer",
-          )}
-        >
-          Change
-        </span>
-        <input
-          type="time"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          aria-label="Pick a time"
-          className="absolute inset-0 opacity-0 cursor-pointer"
-        />
-      </label>
-    </div>
+      <span
+        className={cn(
+          "px-3.5 py-2 rounded-sm bg-blue-soft text-blue text-meta font-semibold pointer-events-none",
+        )}
+      >
+        Change
+      </span>
+      <input
+        type="time"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label="Pick a time"
+        className="absolute inset-0 z-10 w-full h-full opacity-0 cursor-pointer"
+        style={{ WebkitAppearance: "none" }}
+      />
+    </label>
   );
 }
 

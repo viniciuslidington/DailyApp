@@ -1,5 +1,6 @@
 "use client";
 
+import { type DotKind, ScheduleCard } from "@/components/reminders/ScheduleCard";
 import { Button } from "@/components/shared/Button";
 import { FlowHeader } from "@/components/shared/FlowHeader";
 import type { CustomOffset, SchedulePreset } from "@/lib/reminders/schema";
@@ -24,6 +25,17 @@ function dailyOffsets(eventDate: string): CustomOffset[] {
   return offsets.length > 0 ? offsets : [{ days: 0, time: "09:00" }];
 }
 
+function dailyDots(eventDate: string): Array<{ kind: DotKind; label: string }> {
+  const days = daysUntilEvent(eventDate);
+  const n = Math.max(1, Math.min(days, 5));
+  const dots: Array<{ kind: DotKind; label: string }> = [];
+  for (let d = n; d >= 1; d--) {
+    dots.push({ kind: "daily", label: `-${d}d` });
+  }
+  dots.push({ kind: "event", label: "Event" });
+  return dots;
+}
+
 const THREE_DAYS_OFFSETS: CustomOffset[] = [
   { days: 3, time: "09:00" },
   { days: 1, time: "09:00" },
@@ -44,67 +56,6 @@ function isEveryDayTrack(offsets: CustomOffset[]): boolean {
     if (!offsets.some((o) => o.days === i)) return false;
   }
   return true;
-}
-
-// ── sub-components ─────────────────────────────────────────────────────────
-
-type DotKind = "notification" | "mute" | "event" | "daily";
-
-function TimelineDot({ kind }: { kind: DotKind }) {
-  if (kind === "event") {
-    return <div className="w-[13px] h-[13px] rounded-full bg-orange shrink-0 z-10" />;
-  }
-  return (
-    <div
-      className={cn(
-        "w-2 h-2 rounded-full shrink-0 z-10",
-        kind === "notification" && "bg-blue",
-        kind === "daily" && "bg-orange",
-        kind === "mute" && "bg-track",
-      )}
-    />
-  );
-}
-
-type TimelineProps = {
-  dots: Array<{ kind: DotKind; label: string }>;
-};
-
-function Timeline({ dots }: TimelineProps) {
-  return (
-    <div className="relative flex items-center justify-between mt-3 mb-1 px-0.5">
-      {/* connecting line */}
-      <div
-        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-track"
-        aria-hidden
-      />
-      {dots.map((dot, i) => (
-        <React.Fragment key={`${dot.label}-${i}`}>
-          <div className="flex flex-col items-center gap-1 z-10">
-            <TimelineDot kind={dot.kind} />
-            <span className="text-[9px] leading-none text-ink-3 mt-0.5">{dot.label}</span>
-          </div>
-        </React.Fragment>
-      ))}
-    </div>
-  );
-}
-
-function CheckBadge() {
-  return (
-    <span className="w-5 h-5 rounded-full bg-blue flex items-center justify-center shrink-0">
-      <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden>
-        <title>Selected</title>
-        <path
-          d="M1 4l3 3 5-6"
-          stroke="white"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
-  );
 }
 
 function ChevronRight() {
@@ -159,83 +110,41 @@ export default function CR3Page() {
       </div>
       <div className="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-3">
         {/* On the day only */}
-        <button
-          type="button"
+        <ScheduleCard
+          title="On the day only"
+          description="One ping at the time of the event."
+          isSelected={isOnDay}
           onClick={() => setSchedulePreset("on_day")}
-          aria-pressed={isOnDay}
-          className={cn(
-            "w-full rounded-2xl bg-card border-[1.5px] px-4 pt-4 pb-3 text-left transition-colors",
-            isOnDay ? "border-blue" : "border-hair",
-          )}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-body-lg font-semibold text-ink">On the day only</span>
-            {isOnDay ? <CheckBadge /> : <div className="w-5 h-5" />}
-          </div>
-          <p className="text-body text-ink-2 mt-0.5 mb-1">One ping at the time of the event.</p>
-          <Timeline
-            dots={[
-              { kind: "mute", label: "-3d" },
-              { kind: "mute", label: "-2d" },
-              { kind: "mute", label: "-1d" },
-              { kind: "event", label: "Event" },
-            ]}
-          />
-        </button>
+          dots={[
+            { kind: "mute", label: "-3d" },
+            { kind: "mute", label: "-2d" },
+            { kind: "mute", label: "-1d" },
+            { kind: "event", label: "Event" },
+          ]}
+        />
 
         {/* 3 days · 1 day · day of */}
-        <button
-          type="button"
+        <ScheduleCard
+          title="3 days · 1 day · day of"
+          description="A heads-up, a reminder, and a final nudge."
+          isSelected={isThreeDays}
           onClick={() => setScheduleCustom(THREE_DAYS_OFFSETS)}
-          aria-pressed={isThreeDays}
-          className={cn(
-            "w-full rounded-2xl bg-card border-[1.5px] px-4 pt-4 pb-3 text-left transition-colors",
-            isThreeDays ? "border-blue" : "border-hair",
-          )}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-body-lg font-semibold text-ink">3 days · 1 day · day of</span>
-            {isThreeDays ? <CheckBadge /> : <div className="w-5 h-5" />}
-          </div>
-          <p className="text-body text-ink-2 mt-0.5 mb-1">
-            A heads-up, a reminder, and a final nudge.
-          </p>
-          <Timeline
-            dots={[
-              { kind: "notification", label: "-3d" },
-              { kind: "mute", label: "-2d" },
-              { kind: "notification", label: "-1d" },
-              { kind: "event", label: "Event" },
-            ]}
-          />
-        </button>
+          dots={[
+            { kind: "notification", label: "-3d" },
+            { kind: "mute", label: "-2d" },
+            { kind: "notification", label: "-1d" },
+            { kind: "event", label: "Event" },
+          ]}
+        />
 
         {/* Every day until the event */}
-        <button
-          type="button"
+        <ScheduleCard
+          title="Every day until the event"
+          description="A daily countdown until the event."
+          isSelected={isEveryDay}
           onClick={() => setScheduleCustom(dailyOffsets(eventDate))}
-          aria-pressed={isEveryDay}
-          className={cn(
-            "w-full rounded-2xl bg-card border-[1.5px] px-4 pt-4 pb-3 text-left transition-colors",
-            isEveryDay ? "border-blue" : "border-hair",
-          )}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-body-lg font-semibold text-ink">Every day until the event</span>
-            {isEveryDay ? <CheckBadge /> : <div className="w-5 h-5" />}
-          </div>
-          <p className="text-body text-ink-2 mt-0.5 mb-1">A daily countdown until the event.</p>
-          <Timeline
-            dots={[
-              { kind: "daily", label: "-5" },
-              { kind: "daily", label: "-4" },
-              { kind: "daily", label: "-3" },
-              { kind: "daily", label: "-2" },
-              { kind: "daily", label: "-1" },
-              { kind: "event", label: "Event" },
-            ]}
-          />
-        </button>
+          dots={dailyDots(eventDate)}
+        />
 
         {/* Custom… */}
         <button
