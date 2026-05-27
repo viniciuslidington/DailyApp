@@ -5,7 +5,7 @@
 > **Fases concluídas:** 1 → 7 + design refresh (Phase 8 label do commit)  
 > **Status:** Pronto para closed beta
 
----
+-----
 
 ## 1. O que foi construído
 
