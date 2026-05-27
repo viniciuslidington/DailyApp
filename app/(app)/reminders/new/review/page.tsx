@@ -4,6 +4,7 @@ import { TYPE_VISUALS } from "@/components/reminders/TypeChip";
 import { Button } from "@/components/shared/Button";
 import { FlowHeader } from "@/components/shared/FlowHeader";
 import { createReminder } from "@/lib/reminders/actions";
+import { toBackendMessage } from "@/lib/reminders/format";
 import type { CustomOffset, SchedulePreset } from "@/lib/reminders/schema";
 import { useReminderDraft } from "@/lib/store/reminder-draft";
 import { formatEventDate, formatEventTime, toUtcIso } from "@/lib/time/reminder-time";
@@ -112,7 +113,7 @@ export default function CR5Page() {
         title,
         reminder_type: reminderType,
         event_date: eventDateIso,
-        message: message.trim() || null,
+        message: toBackendMessage(message),
         schedule_type: scheduleKind,
         schedule_config: scheduleConfig,
         timezone,

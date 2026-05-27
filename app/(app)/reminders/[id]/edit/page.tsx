@@ -1,3 +1,4 @@
+import { toUserFriendlyMessage } from "@/lib/reminders/format";
 import { readSchedule } from "@/lib/reminders/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { fromUtcIso } from "@/lib/time/reminder-time";
@@ -24,7 +25,7 @@ export default async function EditReminderPage({ params }: Props) {
         reminderType: reminder.reminder_type,
         eventDate: date,
         eventTime: time,
-        message: reminder.message ?? "",
+        message: toUserFriendlyMessage(reminder.message),
         scheduleKind: reminder.schedule_type as "preset" | "custom",
         preset: schedule.type === "preset" ? schedule.config.preset : "on_day",
         customOffsets:

@@ -10,10 +10,10 @@ import { useRouter } from "next/navigation";
 const MAX = 280;
 
 const VARIABLE_CHIPS: Array<{ label: string; value: string }> = [
-  { label: "+ Countdown", value: "{countdown}" },
-  { label: "+ Date", value: "{date}" },
-  { label: "+ Time", value: "{time}" },
-  { label: "+ Your name", value: "{name}" },
+  { label: "+ Countdown", value: "[Countdown]" },
+  { label: "+ Date", value: "[Date]" },
+  { label: "+ Time", value: "[Time]" },
+  { label: "+ Your name", value: "[Your name]" },
 ];
 
 export default function CR4Page() {

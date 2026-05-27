@@ -6,6 +6,7 @@ import { TypeChip } from "@/components/reminders/TypeChip";
 import { Button } from "@/components/shared/Button";
 import { Input } from "@/components/shared/Input";
 import { updateReminder } from "@/lib/reminders/actions";
+import { toBackendMessage } from "@/lib/reminders/format";
 import {
   type CustomOffset,
   PRESET_LABELS,
@@ -57,7 +58,7 @@ export function EditReminderForm({ id, initial }: Props) {
         title: state.title,
         reminder_type: state.reminderType,
         event_date: eventDateIso,
-        message: state.message.trim() || null,
+        message: toBackendMessage(state.message),
         schedule_type: state.scheduleKind,
         schedule_config: scheduleConfig,
         timezone: state.timezone,

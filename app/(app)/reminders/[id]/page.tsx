@@ -1,5 +1,6 @@
 import { TYPE_VISUALS } from "@/components/reminders/TypeChip";
 import { deleteReminderAction, markReminderDoneAction } from "@/lib/reminders/actions";
+import { toUserFriendlyMessage } from "@/lib/reminders/format";
 import {
   type CustomOffset,
   type ReminderType,
@@ -220,7 +221,9 @@ export default async function ReminderDetailPage({ params }: Props) {
             <p className="text-caption text-ink-3 font-semibold uppercase tracking-wider mb-2">
               Notification message
             </p>
-            <p className="text-body text-ink leading-snug">{reminder.message}</p>
+            <p className="text-body text-ink leading-snug">
+              {toUserFriendlyMessage(reminder.message)}
+            </p>
           </div>
         ) : null}
 
